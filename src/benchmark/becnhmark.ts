@@ -78,11 +78,13 @@ export const benchmark = async (runCmd: string): Promise<AggregatedStats> => {
 
     program.stderr.on('data', (data) => {
       clearInterval(interval);
+      program.kill();
       reject(new Error(data));
     });
 
     program.on('error', (err) => {
       clearInterval(interval);
+      program.kill();
       reject(err);
     });
 
