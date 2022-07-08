@@ -7,7 +7,12 @@ import { relative } from 'path';
 import stripAnsi from 'strip-ansi';
 import { benchmark, build, cleanup } from './benchmark/becnhmark';
 import { loadPrograms } from './fs/programs-finder';
-import { AggregatedStats, BecnhmarkConfig, FullAggregatedStats } from './types';
+import {
+  AggregatedStats,
+  BecnhmarkConfig,
+  ExtendedFullAggregatedStats,
+  FullAggregatedStats,
+} from './types';
 import { loadBenchmarkFile } from './utils/benchmark';
 
 const loader = async (
@@ -37,7 +42,7 @@ export const main = async (
   numRunsPerTest: number
 ) => {
   try {
-    const results: FullAggregatedStats[] = [];
+    const results: ExtendedFullAggregatedStats[] = [];
     // Load programs
     const configs: BecnhmarkConfig[] = await loader(
       `Loading programs [${dir}]`,
@@ -124,14 +129,16 @@ export const main = async (
             );
             // results.push(info);
           }
-          const aggResults = localResults.reduce(
+          const aggResults: ExtendedFullAggregatedStats = localResults.reduce(
             (a: FullAggregatedStats, b: FullAggregatedStats) => {
               return {
                 name: a.name,
                 config: a.config,
                 path: a.path,
                 avgCpu: a.avgCpu + b.avgCpu,
+                varianceCpu: a.varianceCpu + b.varianceCpu,
                 avgMemory: a.avgMemory + b.avgMemory,
+                varianceMemory: a.varianceMemory + b.varianceMemory,
                 time: a.time + b.time,
               };
             },
@@ -140,13 +147,23 @@ export const main = async (
               config: localResults[0].config,
               path: localResults[0].path,
               avgCpu: 0,
+              varianceCpu: 0,
               avgMemory: 0,
+              varianceMemory: 0,
               time: 0,
             }
           );
           aggResults.avgCpu = aggResults.avgCpu / localResults.length;
+          aggResults.varianceCpu = aggResults.varianceCpu / localResults.length;
           aggResults.avgMemory = aggResults.avgMemory / localResults.length;
+          aggResults.varianceMemory =
+            aggResults.varianceMemory / localResults.length;
           aggResults.time = aggResults.time / localResults.length;
+          aggResults.varianceTime =
+            localResults
+              .map((el) => el.time)
+              .map((el) => (el - aggResults.time) ** 2)
+              .reduce((a, b) => a + b, 0) / localResults.length;
           results.push(aggResults);
 
           if (settings.cleanup) {
@@ -188,10 +205,10 @@ export const main = async (
           { name: 'name', alignment: 'left' },
           { name: 'path', alignment: 'left' },
           { name: 'config', alignment: 'left' },
-          { name: 'avgCpu', title: 'average CPU (%)', alignment: 'left' },
+          { name: 'avgCpu', title: 'CPU (%)', alignment: 'left' },
           {
             name: 'avgMemory',
-            title: 'average memory (MB)',
+            title: 'memory (MB)',
             alignment: 'left',
           },
           {
@@ -207,18 +224,41 @@ export const main = async (
           .sort((row1, row2) => row1.time - row2.time)
           .map((el) => {
             return {
-              name: chalk.bold.cyan(el.name),
+              name: chalk.bold.cyan(`${el.name} (${numRunsPerTest})`),
               path: chalk.green(el.path),
               config: chalk.green(el.config),
               avgCpu:
                 el.time < 40
-                  ? chalk.bold.dim.yellow(el.avgCpu.toFixed(3))
-                  : chalk.bold.yellow(el.avgCpu.toFixed(3)),
+                  ? chalk.bold.dim.yellow(
+                      `${el.avgCpu.toFixed(3)} ± ${Math.sqrt(
+                        el.varianceCpu
+                      ).toFixed(3)}`
+                    )
+                  : chalk.bold.yellow(
+                      `${el.avgCpu.toFixed(3)} ± ${Math.sqrt(
+                        el.varianceCpu
+                      ).toFixed(3)}`
+                    ),
               avgMemory:
                 el.time < 40
-                  ? chalk.bold.dim.yellow(el.avgMemory.toFixed(3))
-                  : chalk.bold.yellow(el.avgMemory.toFixed(3)),
-              time: chalk.bold.yellow(el.time.toFixed(3)),
+                  ? chalk.bold.dim.yellow(
+                      `${el.avgMemory.toFixed(3)} ± ${Math.sqrt(
+                        el.varianceMemory
+                      ).toFixed(3)}`
+                    )
+                  : chalk.bold.yellow(
+                      `${el.avgMemory.toFixed(3)} ± ${Math.sqrt(
+                        el.varianceMemory
+                      ).toFixed(3)}`
+                    ),
+              time: chalk.bold.yellow(
+                `${el.time.toFixed(3)}${
+                  el.varianceTime
+                    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                      ` ± ${Math.sqrt(el.varianceTime!).toFixed(3)}`
+                    : ''
+                }`
+              ),
             };
           })
       );

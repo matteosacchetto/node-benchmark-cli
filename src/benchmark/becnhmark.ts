@@ -90,18 +90,32 @@ export const benchmark = async (runCmd: string): Promise<AggregatedStats> => {
       finishTime = performance.now();
       clearInterval(interval);
       if (code === 0) {
+        const avgCpu =
+          stats
+            .map((el: ProgramStats) => el.cpu)
+            .reduce((a: number, b: number) => a + b, 0) /
+          Math.max(stats.length, 1);
+
+        const avgMemory =
+          stats
+            .map((el: ProgramStats) => el.memory / 2 ** 20)
+            .reduce((a: number, b: number) => a + b, 0) /
+          Math.max(stats.length, 1);
         const res: AggregatedStats = {
-          avgCpu:
+          avgCpu,
+          varianceCpu:
             stats
               .map((el: ProgramStats) => el.cpu)
+              .map((el) => (el - avgCpu) ** 2)
               .reduce((a: number, b: number) => a + b, 0) /
             Math.max(stats.length, 1),
-          avgMemory:
+          avgMemory,
+          varianceMemory:
             stats
-              .map((el: ProgramStats) => el.memory)
+              .map((el: ProgramStats) => el.memory / 2 ** 20)
+              .map((el) => (el - avgMemory) ** 2)
               .reduce((a: number, b: number) => a + b, 0) /
-            Math.max(stats.length, 1) /
-            2 ** 20,
+            Math.max(stats.length, 1),
           time: finishTime - startTime,
         };
         resolve(res);

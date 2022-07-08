@@ -5,7 +5,9 @@ export type ProgramStats = {
 
 export type AggregatedStats = {
   avgCpu: number;
+  varianceCpu: number;
   avgMemory: number;
+  varianceMemory: number;
   time: number;
 };
 
@@ -13,6 +15,10 @@ export type FullAggregatedStats = AggregatedStats & {
   name: string;
   path: string;
   config: number;
+};
+
+export type ExtendedFullAggregatedStats = FullAggregatedStats & {
+  varianceTime?: number;
 };
 
 export type BecnhmarkSettings = {
