@@ -12,7 +12,7 @@
     "build": "npx rollup -c --environment NODE_ENV:production",
     "pretest": "npm run lint",
     "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "prepack": "npm run build",
+    "prepare": "npm run build",
     "doc": "npx typedoc"
   },
   "author": "Matteo Sacchetto",
