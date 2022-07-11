@@ -9,16 +9,29 @@ Download the node-benchmark-cli-{version}.tgz
 
 Install it with
 
-```
+```bash
 npm i node-benchmark-cli-{version}.tgz
 ```
 
 You can optionally install it globally with
-```
+```bash
 npm i --location=global node-benchmark-cli-{version}.tgz
 ```
 
 where you have to replace {version} with the version number you downloaded (ex: 0.1.0) 
+
+## Run
+
+If you installed it locally you can run it with
+
+```bash
+npx node-benchmark-cli
+```
+
+If instead you installed it globally you can run it with
+```bash
+node-benchmark-cli
+```
 
 ## CLI interface
 ```
