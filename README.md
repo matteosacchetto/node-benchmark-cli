@@ -3,9 +3,22 @@ Simple cross-platform NodeJS CLI tool to benchmark different programs
 
 ## Install
 
+Go to the [Release](https://github.com/matteosacchetto/node-benchmark-cli/releases) section of the GitHub repository
+
+Download the node-benchmark-cli-{version}.tgz
+
+Install it with
+
 ```
-npm i --location=global matteosacchetto/node-benchmark-cli#v0.1.0
+npm i node-benchmark-cli-{version}.tgz
 ```
+
+You can optionally install it globally with
+```
+npm i --location=global node-benchmark-cli-{version}.tgz
+```
+
+where you have to replace {version} with the version number you downloaded (ex: 0.1.0) 
 
 ## CLI interface
 ```
