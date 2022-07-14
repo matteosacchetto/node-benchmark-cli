@@ -1,6 +1,6 @@
 {
   "name": "node-benchmark-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple cross-platform NodeJS CLI tool to benchmark different programs",
   "main": "dist/app.mjs",
   "type": "module",
