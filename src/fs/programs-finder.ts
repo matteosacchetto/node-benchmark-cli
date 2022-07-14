@@ -15,10 +15,12 @@ const listDirContent = async (dir: string, parentRules: string[] = []) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const patterns = (parseGitignore(gitignoreContent) as any).patterns;
     gitingoreRules.push(...patterns);
-    gitignoreFilter.add(gitingoreRules);
   } catch (e) {
     // console.log(e);
   }
+
+  // Add all rules
+  gitignoreFilter.add(gitingoreRules);
 
   const entrties = await opendir(dir);
   const walk: string[] = [];
