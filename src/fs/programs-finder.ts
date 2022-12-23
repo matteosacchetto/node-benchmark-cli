@@ -9,9 +9,9 @@ const listDirContent = async (dir: string, parentRules: string[] = []) => {
   try {
     // Read a .gitignore
     const gitignorePath = join(dir, '.gitignore');
-    const gitignoreContent = await readFile(gitignorePath, {
+    const gitignoreContent = `${await readFile(gitignorePath, {
       encoding: 'utf-8',
-    });
+    })}\n`;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const patterns = (parseGitignore(gitignoreContent) as any).patterns;
     gitingoreRules.push(...patterns);
